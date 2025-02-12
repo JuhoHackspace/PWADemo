@@ -1,0 +1,44 @@
+{
+  "name": "pwa-demo",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "cra-template-pwa": "2.0.0",
+    "idb": "^8.0.2",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-scripts": "5.0.1",
+    "web-vitals": "^4.2.4",
+    "workbox-background-sync": "^7.3.0"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject",
+    "clean": "rimraf build",
+    "test_deploy": "npm run clean && npm run build && serve -s build"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "devDependencies": {
+    "rimraf": "^6.0.1",
+    "serve": "^14.2.4"
+  }
+}
