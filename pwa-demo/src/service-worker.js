@@ -91,7 +91,7 @@ const queue = new Queue('fetch-requests', {
         // Store the response in IndexedDB
         const db = await dbPromise;
         await db.add('responses', { response: responseData });
-        await notifyQueueSize();
+        await notifyQueueSize(); // Notify clients about the queue size
 
       } catch (error) {
         console.error('Replay failed for request:', entry.request, error);
@@ -122,7 +122,7 @@ self.addEventListener('fetch', async (event) => {
       if (event.request.method === 'POST' || event.request.method === 'PATCH') {
         const f = async () => {
           await queue.pushRequest({ request: event.request });
-          notifyQueueSize();
+          notifyQueueSize(); // Notify clients about the queue size
         }
         f();
       }

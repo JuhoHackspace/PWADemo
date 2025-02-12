@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import logo from './logo.svg';
 import './App.css';
 import { openDB } from 'idb';
+import Map from './Components/Map';
 
 function App() {
   const [text, setText] = useState('');
@@ -68,18 +69,19 @@ function App() {
         <div className="header text-center">
             <h1>Map application</h1>
         </div>
-        <div class="container center-all row"> 
-          <div class="cntr-200-w cntr-h-cnt col center-all">
+        <div className="container center-all row"> 
+          <div className="cntr-200-w cntr-h-cnt col center-all">
             <h1>Enter string</h1>
             <input type="text" value={text} onChange={(e) => setText(e.target.value)} />
-            <button class="outer-1em" onClick={sendData}>Send</button>
-            <div class="inner-1em">There are {queueSize} requests queued.</div>
+            <button className="outer-1em" onClick={sendData}>Send</button>
+            <div className="inner-1em">There are {queueSize} requests queued.</div>
             <h1>Response</h1>
-            <div class="inner-1em">
+            <div className="inner-1em">
               {data.length > 0 && data.map((item, index) => (
-                <div class="inner-1em" key={index}>{item}</div>
+                <div className="inner-1em" key={index}>{item}</div>
               ))}
             </div>
+            <Map />
           </div>
         </div>
     </div>
