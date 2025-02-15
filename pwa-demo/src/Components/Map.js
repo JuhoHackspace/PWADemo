@@ -8,13 +8,41 @@ export default function Map() {
   const [zoom, setZoom] = useState(13);
 
   useEffect(() => {
-    // Get the user's current location
-    navigator.geolocation.getCurrentPosition((position) => {
-      setPosition([position.coords.latitude, position.coords.longitude]);
-      setZoom(15); // Zoom in to the user's location
-      console.log("User position: ", position.coords);
-    });
+    if(navigator.onLine) {
+      // Get the user's current location
+      navigator.geolocation.getCurrentPosition((position) => {
+        const userPosition = [position.coords.latitude, position.coords.longitude];
+        setPosition(userPosition); // Set the user's position
+        setZoom(15); // Zoom in to the user's location
+        console.log("User position: ", position.coords);
+
+        localStorage.setItem('userPosition', JSON.stringify(userPosition));
+
+        /*cacheMapTiles(position.coords.latitude, position.coords.longitude, 1000);*/
+      });
+    } else {
+      const userPosition = JSON.parse(localStorage.getItem('userPosition'));
+      if(userPosition) {
+        console.log("User position from local storage: ", userPosition);
+        setPosition(userPosition);
+        setZoom(15);
+      }
+    }
   }, []);
+
+  /*const cacheMapTiles = (lat, lon, radius) => {
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.ready.then((registration) => {
+        console.log('Service worker ready. Caching map tiles...');
+        registration.active.postMessage({
+          type: 'CACHE_MAP_TILES',
+          lat,
+          lon,
+          radius,
+        });
+      });
+    }
+  };*/
 
   return (
     <MapContainer center={position} zoom={zoom} style={{ height: "400px", width: "100%" }}>

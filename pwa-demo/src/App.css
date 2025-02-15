@@ -54,3 +54,63 @@
 .outer-05em {
   margin: 0.5em;
 }
+
+.notification-list {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 100%;
+  z-index: 1000;
+  height: max-content;
+  min-height: 50px;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.notification-list.slide-in {
+  animation: slideIn 0.5s forwards;
+}
+
+.notification-list.fade-out {
+  animation: fadeOut 2s forwards;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+.notification {
+  background-color: transparent;
+  font-size: 1.5em;
+}
+
+.info {
+  color: #17a2b8;
+}
+
+.success {
+  color: #28a745;
+}
+
+.warning {
+  color: #ffc107;
+}
+
+.error {
+  color: #dc3545;
+}
