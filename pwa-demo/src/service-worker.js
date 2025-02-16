@@ -11,7 +11,7 @@ import { clientsClaim } from 'workbox-core';
 import { ExpirationPlugin } from 'workbox-expiration';
 import { precacheAndRoute, createHandlerBoundToURL } from 'workbox-precaching';
 import { registerRoute } from 'workbox-routing';
-import { StaleWhileRevalidate } from 'workbox-strategies';
+import { StaleWhileRevalidate, CacheFirst } from 'workbox-strategies';
 import { BackgroundSyncPlugin } from 'workbox-background-sync';
 import { Queue } from 'workbox-background-sync/Queue';
 import { openDB } from 'idb';
@@ -222,18 +222,56 @@ self.addEventListener('fetch', async (event) => {
   }
 });*/
 
-// Register route to serve cached map tiles
-/*registerRoute(
-  ({ url }) => url.origin === 'https://a.tile.openstreetmap.org',
-  new StaleWhileRevalidate({
+// Log cache updates and responses
+class LoggingPlugin {
+  async cacheDidUpdate({ cacheName, request, oldResponse, newResponse }) {
+    console.log(`Cached new response for ${request.url} in cache ${cacheName}`);
+  }
+
+  async cachedResponseWillBeUsed({ cacheName, request, cachedResponse }) {
+    if (cachedResponse) {
+      console.log(`Serving cached response for ${request.url} from cache ${cacheName}`);
+    } else {
+      console.log(`No cached response for ${request.url} in cache ${cacheName}`);
+    }
+    return cachedResponse;
+  }
+}
+
+// Custom handler function to switch between caching strategies
+const customHandler = async ({ event }) => {
+  const cacheFirst = new CacheFirst({
     cacheName: 'map-tiles',
     plugins: [
       new ExpirationPlugin({ maxEntries: 1000 }),
+      new LoggingPlugin(),
     ],
-  })
-);*/
+  });
 
-self.addEventListener('fetch', (event) => {
+  const staleWhileRevalidate = new StaleWhileRevalidate({
+    cacheName: 'map-tiles',
+    plugins: [
+      new ExpirationPlugin({ maxEntries: 1000 }),
+      new LoggingPlugin(),
+    ],
+  });
+
+  if (navigator.onLine) {
+    console.log('Online. Using stale-while-revalidate strategy for: ', event);
+    return await staleWhileRevalidate.handle(event);
+  } else {
+    console.log('Offline. Using cache-first strategy for ', event);
+    return await cacheFirst.handle(event);
+  }
+};
+
+// Register route to serve cached map tiles with custom handler
+registerRoute(
+  ({ url }) => url.origin === 'https://a.tile.openstreetmap.org',
+  customHandler
+);
+
+/*self.addEventListener('fetch', (event) => {
   if (event.request.url.startsWith('https://a.tile.openstreetmap.org') && event.request.method === 'GET') {
     event.respondWith(
       caches.open('map-tiles').then((cache) => {
@@ -252,7 +290,7 @@ self.addEventListener('fetch', (event) => {
       })
     );
 }
-});
+});*/
 
 self.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'SKIP_WAITING') {
