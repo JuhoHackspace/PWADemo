@@ -18,7 +18,6 @@ export default function Map() {
 
         localStorage.setItem('userPosition', JSON.stringify(userPosition));
 
-        /*cacheMapTiles(position.coords.latitude, position.coords.longitude, 1000);*/
       });
     } else {
       const userPosition = JSON.parse(localStorage.getItem('userPosition'));
@@ -30,19 +29,7 @@ export default function Map() {
     }
   }, []);
 
-  /*const cacheMapTiles = (lat, lon, radius) => {
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.ready.then((registration) => {
-        console.log('Service worker ready. Caching map tiles...');
-        registration.active.postMessage({
-          type: 'CACHE_MAP_TILES',
-          lat,
-          lon,
-          radius,
-        });
-      });
-    }
-  };*/
+  
 
   return (
     <MapContainer center={position} zoom={zoom} style={{ height: "400px", width: "100%" }}>
