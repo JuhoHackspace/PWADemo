@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { MapContainer, TileLayer } from 'react-leaflet';
+import { MapContainer, TileLayer, useMapEvents } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import LocationMarker from './LocationMarker';
 import { openDB } from 'idb';
@@ -10,6 +10,7 @@ export default function Map() {
   const [zoom, setZoom] = useState(13);
   const [locations, setLocations] = useState([]);
   const { addNotification } = useNotification();
+  const [markerPlacementEnabled, setMarkerPlacementEnabled] = useState(false);
 
   useEffect(() => {
     if(navigator.onLine) {
@@ -39,6 +40,45 @@ export default function Map() {
   };
 
   const addLocation = async (location) => {
+      try {
+        try {
+          const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/locations`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(location),
+          });
+          const data = await response.text();
+          console.log("Location added: ", data);
+          addNotification("Location added!", "success");
+        } catch(error) {
+          console.error("Error adding location: ", error);
+        }
+        if(!navigator.onLine) {
+          await addLocationsToIDB([location]);
+          addNotification("Location added! Will be synced once online.", "info");
+          getLocationsFromIDB();
+        }else {
+          await getLocations(); // Fetch the latest locations
+        }
+      } catch(error) {
+        console.error("Error adding location: ", error);
+        addNotification("Error adding location!", "error");
+      }
+  };
+
+  const hanleMapClick = (event) => {
+    if(markerPlacementEnabled) {
+      const { lat, lng } = event.latlng;
+      const location = {
+        latitude: lat,
+        longitude: lng,
+        description: prompt("Enter a description for the location:")
+      };
+      addLocation(location);
+    }
+  }
   const getLocations = async () => {
     try {
       const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/locations`);
@@ -102,23 +142,36 @@ export default function Map() {
       getLocations();
     };
 
-    window.addEventListener('message', (event) => {
+    navigator.serviceWorker.addEventListener('message', (event) => {
+      console.log('Received sync message from service worker', event.data);
       if (event.data.type === 'SYNC_COMPLETE') {
         handleOnline(); // When the background sync is complete, fetch the latest locations
       }
     });
   }, []);
 
+  const MapClickHandler = () => {
+    useMapEvents({
+      click: hanleMapClick
+    });
+  }
+
   return (
+    <>
+    <button onClick={() => setMarkerPlacementEnabled(!markerPlacementEnabled)}>
+      {markerPlacementEnabled ? "Cancel" : "Add location"}
+    </button>
     <MapContainer center={position} zoom={zoom} style={{ height: "400px", width: "100%" }}>
         <TileLayer
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         />
+        <MapClickHandler />
         <LocationMarker position={position} description="You are here." isUserLocation={true} />
         {locations.length > 0 && locations.map((location, index) => (
-          <LocationMarker key={index} position={[location.latitude, location.longitude]} isUserLocation={false} />
+          <LocationMarker key={index} position={[location.latitude, location.longitude]} description={location.description} isUserLocation={false} />
         ))}
     </MapContainer>
+    </>
   )
 }

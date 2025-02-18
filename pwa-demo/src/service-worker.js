@@ -91,8 +91,6 @@ const queue = new Queue('fetch-requests', {
         // Store the response in IndexedDB
         /*const db = await dbPromise;
         await db.add('responses', { response: responseData });*/
-        await notifyQueueSize(); // Notify clients about the queue size
-
       } catch (error) {
         console.error('Replay failed for request:', entry.request, error);
         await queue.unshiftRequest(entry);

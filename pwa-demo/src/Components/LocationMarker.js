@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Marker, Popup, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
@@ -7,7 +7,7 @@ import marker2 from '../Assets/marker2.png';
 
 function LocationMarker({ position, description, isUserLocation }) {
   const map = useMap();
-
+  const markerRef = useRef(null);
     // Define a custom icon
   const customIcon = new L.Icon({
     iconUrl: isUserLocation ? marker: marker2, // Specify the icon image URL
@@ -22,8 +22,14 @@ function LocationMarker({ position, description, isUserLocation }) {
     }
   }, [position, map]);
 
+  useEffect(() => {
+    if (markerRef.current && isUserLocation) {
+      markerRef.current.setZIndexOffset(1000); // Set z-index to 1000 for user location marker
+    }
+  }, [isUserLocation]);
+
   return position === null ? null : (
-    <Marker position={position} icon={customIcon}>
+    <Marker position={position} icon={customIcon} ref={markerRef}>
       <Popup>{description}</Popup>
     </Marker>
   );

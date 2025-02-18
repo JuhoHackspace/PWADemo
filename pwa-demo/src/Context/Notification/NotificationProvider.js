@@ -52,6 +52,28 @@ const NotificationProvider = ({ children }) => {
     };
   }, [addNotification]);
 
+  useEffect(() => {
+    const handleQueuedInteractions = (event) => {
+      if (event.data.size > 0) {
+        addNotification('Request queued. Will be sent once online.', 'info');
+        addNotification(`You have ${event.data.size} interactions queued.`, 'info');
+      }
+    }
+
+    navigator.serviceWorker.addEventListener('message', (event) => {
+      console.log('Received queue message from service worker', event.data);
+      if (event.data.type === 'QUEUE_SIZE') {
+        handleQueuedInteractions(event);
+      }
+    })
+    navigator.serviceWorker.addEventListener('message', (event) => {
+      console.log('Received sync message from service worker', event.data);
+      if (event.data.type === 'SYNC_COMPLETE') {
+        addNotification('Data synced successfully!', 'success');
+      }
+    })
+
+  }, []);
   return (
     <NotificationContext.Provider value={{ addNotification }}>
       {children}

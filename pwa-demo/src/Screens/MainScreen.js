@@ -70,25 +70,12 @@ function MainScreen() {
   
   return (
     <div className="base-container">
-        <div className="header text-center">
+      <div className="container col center-all">
+        <div className="">
             <h1>Map application</h1>
-        </div>
-        <div className="container center-all row"> 
-          <div className="cntr-200-w cntr-h-cnt col center-all">
-            <h1>Enter string</h1>
-            <input type="text" value={text} onChange={(e) => setText(e.target.value)} />
-            <button className="outer-1em" onClick={sendData}>Send</button>
-            <div className="inner-1em">There are {queueSize} requests queued.</div>
-            <h1>Response</h1>
-            <div className="inner-1em">
-              {data.length > 0 && data.map((item, index) => (
-                <div className="inner-1em" key={index}>{item}</div>
-              ))}
-            </div>
-            <button onClick={handleButtonClick}>Show Notification</button>
-            <Map />
-          </div>
-        </div>
+        </div>      
+        <Map />
+      </div>
     </div>
   );
 }
