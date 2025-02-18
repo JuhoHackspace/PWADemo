@@ -89,8 +89,8 @@ const queue = new Queue('fetch-requests', {
         console.log('Request replayed successfully:', responseData);
 
         // Store the response in IndexedDB
-        const db = await dbPromise;
-        await db.add('responses', { response: responseData });
+        /*const db = await dbPromise;
+        await db.add('responses', { response: responseData });*/
         await notifyQueueSize(); // Notify clients about the queue size
 
       } catch (error) {
@@ -116,18 +116,20 @@ const notifyQueueSize = async () => {
 };
 
 self.addEventListener('fetch', async (event) => {
-  if (!self.navigator.onLine) {
-    const promiseChain = fetch(event.request.clone()).catch(() => {
-      if (event.request.method === 'POST' || event.request.method === 'PATCH') {
-        console.log('Offline. Queueing request:', event.request);
-        const f = async () => {
-          await queue.pushRequest({ request: event.request });
-          notifyQueueSize(); // Notify clients about the queue size
+  if(event.request.url.includes('/api/locations')) {
+    if (!self.navigator.onLine) {
+      const promiseChain = fetch(event.request.clone()).catch(() => {
+        if (event.request.method === 'POST' || event.request.method === 'PATCH') {
+          console.log('Offline. Queueing request:', event.request);
+          const f = async () => {
+            await queue.pushRequest({ request: event.request });
+            notifyQueueSize(); // Notify clients about the queue size
+          }
+          f();
         }
-        f();
-      }
-    });
-    event.waitUntil(promiseChain);
+      });
+      event.waitUntil(promiseChain);
+    }
   }
 });
 

@@ -40,6 +40,16 @@ app.get('/api/locations', async (req, res) => {
     }
 });
 
+app.post('/api/locations', async (req, res) => {
+    const location = req.body;
+    if(location) {
+        const docRef = await addDoc(locations, location);
+        res.status(201).send(`Location added with ID: ${docRef.id}`);
+    } else {
+        res.status(400).send('Location not found in request body');
+    }
+});
+
 app.post('/api', (req, res) => {
     console.log("Request body: ", req.body);
     const receivedString = req.body.string; // Assuming the string is sent in the "string" field
