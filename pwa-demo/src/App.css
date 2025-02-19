@@ -54,14 +54,15 @@
 }
 
 .notification-list {
-  position: absolute;
-  top: 0;
-  right: 0;
-  width: 100%;
+  position: fixed;
+  top: 30px;
+  left: 0;
+  width: 25%;
   z-index: 1000;
   height: max-content;
   min-height: 50px;
   background-color: rgba(0, 0, 0, 0.5);
+  border-radius: 0 10px 10px 0;
 }
 
 .notification-list.slide-in {
@@ -94,7 +95,8 @@
 
 .notification {
   background-color: transparent;
-  font-size: 1.5em;
+  font-size: 1em;
+  text-align: center;
 }
 
 .info {
@@ -111,4 +113,22 @@
 
 .error {
   color: #dc3545;
+}
+
+.navigator-status {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: max-content;
+  z-index: 1000;
+  height: max-content;
+  min-height: 50px;
+}
+
+.text-red-500 {
+  color: #f44336;
+}
+
+.text-green-500 {
+  color: #4caf50;
 }

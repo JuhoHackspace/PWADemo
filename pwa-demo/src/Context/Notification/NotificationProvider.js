@@ -1,11 +1,13 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import NotificationContext from './NotificationContext';
 import NotificationList from './NotificationList';
+import NavigatorStatus from './NavigatorStatus';
 
 const NotificationProvider = ({ children }) => {
   const [notifications, setNotifications] = useState([]);
   const [isVisible, setIsVisible] = useState(false);
   const timerRef = useRef(null);
+  const [isOnline, setIsOnline] = useState(navigator.onLine);
 
   const addNotification = useCallback((message, type = 'info') => {
     const id = Date.now();
@@ -32,10 +34,12 @@ const NotificationProvider = ({ children }) => {
   useEffect(() => {
     const handleOnline = () => {
       addNotification('You are back online!', 'success');
+      setIsOnline(true);
     };
 
     const handleOffline = () => {
       addNotification('You are offline! Your interactions will be stored.', 'warning');
+      setIsOnline(false);
     };
 
     window.addEventListener('online', handleOnline);
@@ -77,6 +81,7 @@ const NotificationProvider = ({ children }) => {
   return (
     <NotificationContext.Provider value={{ addNotification }}>
       {children}
+      <NavigatorStatus isOnline={isOnline} />
       {<NotificationList notifications={notifications} isVisible={isVisible} />}
     </NotificationContext.Provider>
   );

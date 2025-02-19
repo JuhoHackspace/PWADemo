@@ -50,6 +50,7 @@ const LocationsProvider = ({children}) => {
         addLocationsToIDB(data);
       } catch(error) {
         console.error("Error fetching locations: ", error);
+        addNotification("Error connecting to the server", "error");
       }
     };
   
