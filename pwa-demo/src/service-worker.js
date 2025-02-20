@@ -64,6 +64,17 @@ registerRoute(
   })
 );
 
+// Cache custom markers and other assets in the src/Assets directory
+registerRoute(
+  ({ url }) => url.origin === self.location.origin && url.pathname.startsWith('/src/Assets/'),
+  new CacheFirst({
+    cacheName: 'assets',
+    plugins: [
+      new ExpirationPlugin({ maxEntries: 50 }),
+    ],
+  })
+);
+
 // Open IndexedDB
 const dbPromise = openDB('responses-db', 1, {
   upgrade(db) {
@@ -109,6 +120,7 @@ const notifyQueueSize = async () => {
   }
 };
 
+// Listen for fetch events
 self.addEventListener('fetch', async (event) => {
   if(event.request.url.includes('/api/locations')) {
     if (!self.navigator.onLine) {

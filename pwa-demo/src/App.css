@@ -86,7 +86,7 @@
 }
 
 .button-secondary {
-  background-color: #f44336;
+  background-color: #28a745;
 }
 
 .notification-list {
@@ -106,7 +106,7 @@
 }
 
 .notification-list.fade-out {
-  animation: fadeOut 2s forwards;
+  animation: fadeOut 1s forwards;
 }
 
 @keyframes slideIn {

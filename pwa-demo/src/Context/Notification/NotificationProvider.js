@@ -7,6 +7,7 @@ const NotificationProvider = ({ children }) => {
   const [notifications, setNotifications] = useState([]);
   const [isVisible, setIsVisible] = useState(false);
   const timerRef = useRef(null);
+  const timerRef2 = useRef(null);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
 
   const addNotification = useCallback((message, type = 'info') => {
@@ -22,10 +23,12 @@ const NotificationProvider = ({ children }) => {
   const resetTimer = () => {
     if (timerRef.current) {
       clearTimeout(timerRef.current);
+    }if(timerRef2.current) {
+      clearTimeout(timerRef2.current);
     }
     timerRef.current = setTimeout(() => {
       setIsVisible(false);
-      setTimeout(() => {
+      timerRef2.current = setTimeout(() => {
         setNotifications([]);
       }, 1000); // Ensure all notifications are shown for at least 3 seconds during fade-out
     }, 5000);

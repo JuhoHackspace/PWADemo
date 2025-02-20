@@ -10,6 +10,7 @@ export default function Map() {
   const [markerPlacementEnabled, setMarkerPlacementEnabled] = useState(false);
   const { locations, addLocation, removeLocation } = UseLocations();
   const [markerRemovalEnabled, setMarkerRemovalEnabled] = useState(false);
+
   useEffect(() => {
     if(navigator.onLine) {
       // Get the user's current location
@@ -58,6 +59,20 @@ export default function Map() {
     });
   }
 
+  const handelRemoveButtonClick = () => {
+    setMarkerRemovalEnabled(!markerRemovalEnabled);
+    if(markerPlacementEnabled) {
+      setMarkerPlacementEnabled(false);
+    }
+  }
+
+  const handleAddButtonClick = () => {
+    setMarkerPlacementEnabled(!markerPlacementEnabled);
+    if(markerRemovalEnabled) {
+      setMarkerRemovalEnabled(false);
+    }
+  }
+
   return (
     <>
     <span className="inner-1em text-center min-h-100">
@@ -69,18 +84,16 @@ export default function Map() {
     </span>
     <div className="inner-1em row">
       <button 
-        className={`button ${markerRemovalEnabled ? "button-secondary" : ""}`} 
-        onClick={() => setMarkerPlacementEnabled(!markerPlacementEnabled)}
-        disabled={markerRemovalEnabled}
+        className={`button ${markerPlacementEnabled ? "button-secondary" : ""}`} 
+        onClick={handleAddButtonClick}
       >
-        {markerPlacementEnabled ? "Cancel" : "Add Location"}
+        Add Location
       </button>
       <button 
-        className={`button ${markerPlacementEnabled ? "button-secondary" : ""}`} 
-        onClick={() => setMarkerRemovalEnabled(!markerRemovalEnabled)}
-        disabled={markerPlacementEnabled}
+        className={`button ${markerRemovalEnabled ? "button-secondary" : ""}`} 
+        onClick={handelRemoveButtonClick}
       >
-        {markerRemovalEnabled ? "Cancel" : "Remove Location"}
+        Remove Location
       </button>
     </div>
     <MapContainer center={position} zoom={zoom} style={{ height: "400px", width: "100%" }}>
