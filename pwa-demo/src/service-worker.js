@@ -67,7 +67,7 @@ registerRoute(
 registerRoute(
   ({ url }) => url.origin === self.location.origin && url.pathname.startsWith('/static/media/'),
   new CacheFirst({
-    cacheName: 'assets',
+    cacheName: `workbox-precache-v2-${self.location.origin}/`,
     plugins: [
       new ExpirationPlugin({ maxEntries: 50 }),
     ],
