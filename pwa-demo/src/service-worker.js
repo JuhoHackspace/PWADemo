@@ -64,7 +64,7 @@ registerRoute(
 );
 
 // Cache custom markers and other assets in the src/Assets directory
-registerRoute(
+/*registerRoute(
   ({ url }) => url.origin === self.location.origin && url.pathname.startsWith('/src/Assets/'),
   new CacheFirst({
     cacheName: 'assets',
@@ -72,7 +72,7 @@ registerRoute(
       new ExpirationPlugin({ maxEntries: 50 }),
     ],
   })
-);
+);*/
 
 // Open IndexedDB
 const dbPromise = openDB('responses-db', 1, {
