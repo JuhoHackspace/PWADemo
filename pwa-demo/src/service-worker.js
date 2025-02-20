@@ -87,10 +87,6 @@ const queue = new Queue('fetch-requests', {
           responseData = responseText;
         }
         console.log('Request replayed successfully:', responseData);
-
-        // Store the response in IndexedDB
-        /*const db = await dbPromise;
-        await db.add('responses', { response: responseData });*/
       } catch (error) {
         console.error('Replay failed for request:', entry.request, error);
         await queue.unshiftRequest(entry);
@@ -98,7 +94,7 @@ const queue = new Queue('fetch-requests', {
       }
     }
     // Notify clients that sync is complete
-    const clients = await self.clients.matchAll();
+    const clients = await self.clients.matchAll()
     for (const client of clients) {
       client.postMessage({ type: 'SYNC_COMPLETE' });
     }
@@ -117,7 +113,7 @@ self.addEventListener('fetch', async (event) => {
   if(event.request.url.includes('/api/locations')) {
     if (!self.navigator.onLine) {
       const promiseChain = fetch(event.request.clone()).catch(() => {
-        if (event.request.method === 'POST' || event.request.method === 'PATCH') {
+        if (event.request.method === 'POST' || event.request.method === 'PATCH' || event.request.method === 'DELETE') {
           console.log('Offline. Queueing request:', event.request);
           const f = async () => {
             await queue.pushRequest({ request: event.request });
@@ -130,97 +126,6 @@ self.addEventListener('fetch', async (event) => {
     }
   }
 });
-
-// Cache map tiles for a specific area
-/*const cacheMapTiles = async (lat, lon, radius) => {
-  const cache = await caches.open('map-tiles');
-  const zoomLevels = [15];
-  const tilePromises = [];
-  const maxConcurrentRequests = 5;
-  const delayBetweenRequests = 20;
-
-  const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-
-  const fetchWithRetry = async (url, retries) => {
-    try {
-      const response = await fetch(url);
-      if (!response.ok) throw new Error('Network response was not ok');
-      await cache.put(url, response);
-    } catch (error) {
-      if (retries > 0) {
-        console.warn(`Retrying ${url}, ${retries} retries left`);
-        await delay(10);
-        return fetchWithRetry(url, retries - 1);
-      } else {
-        console.error(`Failed to fetch ${url} after ${retries} retries`);
-        throw error;
-      }
-    }
-  };
-
-  try {
-
-    for (const zoom of zoomLevels) {
-      const tileSize = 256;
-      const earthRadius = 6378137;
-      const initialResolution = 2 * Math.PI * earthRadius / tileSize;
-      const originShift = 2 * Math.PI * earthRadius / 2.0;
-
-      const latLonToMeters = (lat, lon) => {
-        const mx = lon * originShift / 180.0;
-        const my = Math.log(Math.tan((90 + lat) * Math.PI / 360.0)) / (Math.PI / 180.0);
-        return [mx, my * originShift / 180.0];
-      };
-
-      const metersToTile = (mx, my, zoom) => {
-        const res = initialResolution / Math.pow(2, zoom);
-        const px = (mx + originShift) / res;
-        const py = (my + originShift) / res;
-        return [Math.floor(px / tileSize), Math.floor(py / tileSize)];
-      };
-
-      const [mx, my] = latLonToMeters(lat, lon);
-      const [tx, ty] = metersToTile(mx, my, zoom);
-      const radiusInTiles = Math.ceil(radius / (initialResolution / Math.pow(2, zoom)));
-
-      for (let x = tx - radiusInTiles; x <= tx + radiusInTiles; x++) {
-        for (let y = ty - radiusInTiles; y <= ty + radiusInTiles; y++) {
-          const url = `https://a.tile.openstreetmap.org/${zoom}/${x}/${y}.png`;
-          // Check if the tile is already cached
-          const cachedResponse = await cache.match(url);
-          if (!cachedResponse) {
-            tilePromises.push(
-              (async () => {
-                await delay(delayBetweenRequests);
-                return fetchWithRetry(url, 3); // Retry up to 3 times
-              })()
-            );
-
-            if (tilePromises.length >= maxConcurrentRequests) {
-              await Promise.all(tilePromises);
-              tilePromises.splice(0, tilePromises.length); // Clear the array
-            }
-          }
-        }
-      }
-    };
-    if (tilePromises.length > 0) {
-      await Promise.all(tilePromises);
-      tilePromises.splice(0, tilePromises.length); // Clear the array
-    }
-  } catch (error) {
-    console.error('Error caching map tiles:', error);
-  }
-};*/
-
-//Event listener to cache map tiles
-/*self.addEventListener('message', (event) => {
-  if (event.data && event.data.type === 'CACHE_MAP_TILES') {
-    console.log('Caching map tiles for:', event.data);
-    const { lat, lon, radius } = event.data;
-    cacheMapTiles(lat, lon, radius);
-  }
-});*/
 
 // Log cache updates and responses
 class LoggingPlugin {
@@ -271,43 +176,8 @@ registerRoute(
   customHandler
 );
 
-/*self.addEventListener('fetch', (event) => {
-  if (event.request.url.startsWith('https://a.tile.openstreetmap.org') && event.request.method === 'GET') {
-    event.respondWith(
-      caches.open('map-tiles').then((cache) => {
-        return cache.match(event.request).then((response) => {
-          if (response) {
-            console.log('Serving cached tile:', response, 'for url:', event.request.url);
-            return response;
-          } else {
-            return fetch(event.request).then((response) => {
-              console.log('Caching tile:', response, 'for url:', event.request.url);
-              cache.put(event.request, response.clone());
-              return response;
-            });
-          }
-        });
-      })
-    );
-}
-});*/
-
 self.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'SKIP_WAITING') {
     self.skipWaiting();
   }
 });
-
-/*self.addEventListener('activate', (event) => {
-  event.waitUntil(
-    (async () => {
-      // Check if the navigator is offline
-      if (!navigator.onLine) {
-        const clients = await self.clients.matchAll();
-        for (const client of clients) {
-          client.postMessage({ type: 'OFFLINE_STATUS' });
-        }
-      }
-    })()
-  );
-});*/

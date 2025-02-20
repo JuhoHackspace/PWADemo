@@ -3,7 +3,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import ksg from 'body-parser';
 const { json } = ksg;
-import { db, locations, onSnapshot, addDoc } from './Firebase/Config.mjs';
+import { db, locations, onSnapshot, addDoc, deleteDoc, doc, setDoc } from './Firebase/Config.mjs';
 
 dotenv.config();
 
@@ -24,7 +24,7 @@ let latestLocations = [];
 const unsubscribe = onSnapshot(locations, (snapshot) => {
     const locations = [];
     snapshot.forEach((doc) => {
-        locations.push(doc.data());
+        locations.push({data: doc.data(), id: doc.id});
     });
     latestLocations = locations;
     console.log("Latest locations: ", latestLocations);
@@ -43,10 +43,23 @@ app.get('/api/locations', async (req, res) => {
 app.post('/api/locations', async (req, res) => {
     const location = req.body;
     if(location) {
-        const docRef = await addDoc(locations, location);
+        const docRef = doc(db, 'locations', location.id);
+        await setDoc(docRef, location.data);
         res.status(201).send(`Location added with ID: ${docRef.id}`);
     } else {
         res.status(400).send('Location not found in request body');
+    }
+});
+
+app.delete('/api/locations/:id', async (req, res) => {
+    console.log("Request params: ", req.params);
+    const id = req.params.id;
+    if(id) {
+        const docRef = doc(db, 'locations', id);
+        await deleteDoc(docRef);
+        res.status(200).send(`Location with ID: ${id} deleted`);
+    } else {
+        res.status(400).send('Location ID not found in request');
     }
 });
 

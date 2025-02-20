@@ -1,7 +1,7 @@
 import { initializeApp } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
 import dotenv from 'dotenv';
-import { onSnapshot, addDoc, collection } from 'firebase/firestore';
+import { onSnapshot, addDoc, collection, deleteDoc, doc, setDoc } from 'firebase/firestore';
 
 dotenv.config();
 
@@ -19,4 +19,4 @@ const db = getFirestore(app);
 
 const locations = collection(db, 'locations');
 
-export { db, locations, onSnapshot, addDoc };
+export { db, locations, onSnapshot, addDoc, deleteDoc, doc, setDoc };

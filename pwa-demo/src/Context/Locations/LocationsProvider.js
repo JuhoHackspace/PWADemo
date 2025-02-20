@@ -7,11 +7,6 @@ const LocationsProvider = ({children}) => {
     const [locations, setLocations] = useState([]);
     const { addNotification } = useNotification();
   
-      // Hashing function to create a unique ID based on latitude and longitude
-    const hashLocation = (latitude, longitude) => {
-      return `${Number(latitude).toFixed(6)}_${Number(longitude).toFixed(6)}`;
-    };
-  
     const addLocation = async (location) => {
         try {
           try {
@@ -40,6 +35,39 @@ const LocationsProvider = ({children}) => {
           addNotification("Error adding location!", "error");
         }
     };
+
+    const removeLocation = async (location) => {
+      try {
+        try {
+          const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/locations/${location.id}`, {
+            method: 'DELETE',
+          });
+          const data = await response.text();
+          console.log("Location deleted: ", data);
+          addNotification("Location deleted!", "success");
+        } catch(error) {
+          console.error("Error deleting location: ", error);
+        }
+        await removeLocationFromIDB(location);
+        if(!navigator.onLine) {
+          addNotification("Location deleted! Will be synced once online.", "info");
+          getLocationsFromIDB();
+        }else {
+          await getLocations(); // Fetch the latest locations
+        }
+      } catch(error) {
+        console.error("Error deleting location: ", error);
+        addNotification("Error deleting location!", "error");
+      }
+    };
+
+    const removeLocationFromIDB = async (location) => {
+      const db = await openDB('locations-db', 1);
+      const tx = db.transaction('locations', 'readwrite');
+      const store = tx.objectStore('locations');
+      await store.delete(location.id);
+      await tx.done;
+    };
   
     const getLocations = async () => {
       try {
@@ -53,17 +81,17 @@ const LocationsProvider = ({children}) => {
         addNotification("Error connecting to the server", "error");
       }
     };
-  
+    
     const addLocationsToIDB = async (locations) => {
+      console.log("Adding locations to IDB: ", locations);
       const db = await openDB('locations-db', 1, {
         upgrade(db) {
           const store = db.createObjectStore('locations', {
             keyPath: 'id',
-            autoIncrement: true,
           });
-          store.createIndex('latitude', 'latitude');
-          store.createIndex('longitude', 'longitude');
-          store.createIndex('description', 'description');
+          store.createIndex('latitude', 'data.latitude');
+          store.createIndex('longitude', 'data.longitude');
+          store.createIndex('description', 'data.description');
         },
       });
   
@@ -71,16 +99,16 @@ const LocationsProvider = ({children}) => {
       const store = tx.objectStore('locations');
   
       for (const location of locations) {
-        const id = hashLocation(location.latitude, location.longitude);
+        const id = location.id;
         const existingLocation = await store.get(id);
         if (!existingLocation) {
-          await store.add({ ...location, id });
+          await store.add(location);
         }
       }
   
       await tx.done;
     };
-    
+
     const getLocationsFromIDB = async () => {
       const db = await openDB('locations-db', 1);
       const tx = db.transaction('locations', 'readonly');
@@ -114,7 +142,7 @@ const LocationsProvider = ({children}) => {
     }, []);
 
   return (
-    <LocationsContext.Provider value={{addLocation, locations}}>
+    <LocationsContext.Provider value={{addLocation, removeLocation, locations}}>
       {children}
     </LocationsContext.Provider>
   )

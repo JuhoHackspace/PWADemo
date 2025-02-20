@@ -5,7 +5,7 @@ import L from 'leaflet';
 import marker from '../Assets/marker.png';
 import marker2 from '../Assets/marker2.png';
 
-function LocationMarker({ position, description, isUserLocation }) {
+function LocationMarker({ position, description, isUserLocation, onClickHandler }) {
   const map = useMap();
   const markerRef = useRef(null);
     // Define a custom icon
@@ -29,7 +29,17 @@ function LocationMarker({ position, description, isUserLocation }) {
   }, [isUserLocation]);
 
   return position === null ? null : (
-    <Marker position={position} icon={customIcon} ref={markerRef}>
+    <Marker 
+      position={position} 
+      icon={customIcon} 
+      ref={markerRef} 
+      eventHandlers={{
+        click: (e) => {
+          e.originalEvent.stopPropagation(); // Prevent the map click event from firing
+          onClickHandler();
+        }
+      }}
+    >
       <Popup>{description}</Popup>
     </Marker>
   );

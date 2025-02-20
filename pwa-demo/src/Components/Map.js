@@ -8,8 +8,8 @@ export default function Map() {
   const [position, setPosition] = useState([65.0121, 25.4651]); // Default to Oulu, Finland
   const [zoom, setZoom] = useState(13);
   const [markerPlacementEnabled, setMarkerPlacementEnabled] = useState(false);
-  const { locations, addLocation } = UseLocations();
-
+  const { locations, addLocation, removeLocation } = UseLocations();
+  const [markerRemovalEnabled, setMarkerRemovalEnabled] = useState(false);
   useEffect(() => {
     if(navigator.onLine) {
       // Get the user's current location
@@ -41,9 +41,12 @@ export default function Map() {
     if(markerPlacementEnabled) {
       const { lat, lng } = event.latlng;
       const location = {
-        latitude: lat,
-        longitude: lng,
-        description: prompt("Enter a description for the location:")
+        id: hashLocation(lat, lng),
+        data: {
+          latitude: lat,
+          longitude: lng,
+          description: prompt("Enter a description for the location:")
+        }
       };
       addLocation(location);
     }
@@ -57,9 +60,29 @@ export default function Map() {
 
   return (
     <>
-    <button onClick={() => setMarkerPlacementEnabled(!markerPlacementEnabled)}>
-      {markerPlacementEnabled ? "Cancel" : "Add location"}
-    </button>
+    <span className="inner-1em text-center min-h-100">
+      <p>Add or remove locations</p>
+      <p>
+        {markerPlacementEnabled && "Click on the map to add a location."}
+        {markerRemovalEnabled && "Click on a location to remove it."}
+      </p>
+    </span>
+    <div className="inner-1em row">
+      <button 
+        className={`button ${markerRemovalEnabled ? "button-secondary" : ""}`} 
+        onClick={() => setMarkerPlacementEnabled(!markerPlacementEnabled)}
+        disabled={markerRemovalEnabled}
+      >
+        {markerPlacementEnabled ? "Cancel" : "Add Location"}
+      </button>
+      <button 
+        className={`button ${markerPlacementEnabled ? "button-secondary" : ""}`} 
+        onClick={() => setMarkerRemovalEnabled(!markerRemovalEnabled)}
+        disabled={markerPlacementEnabled}
+      >
+        {markerRemovalEnabled ? "Cancel" : "Remove Location"}
+      </button>
+    </div>
     <MapContainer center={position} zoom={zoom} style={{ height: "400px", width: "100%" }}>
         <TileLayer
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -68,7 +91,17 @@ export default function Map() {
         <MapClickHandler />
         <LocationMarker position={position} description="You are here." isUserLocation={true} />
         {locations.length > 0 && locations.map((location, index) => (
-          <LocationMarker key={index} position={[location.latitude, location.longitude]} description={location.description} isUserLocation={false} />
+          <LocationMarker 
+            key={index} 
+            position={[location.data.latitude, location.data.longitude]} 
+            description={location.data.description} 
+            isUserLocation={false} 
+            onClickHandler={() => {
+              if(markerRemovalEnabled) {
+                removeLocation(location)
+              }
+            }}
+          />
         ))}
     </MapContainer>
     </>
