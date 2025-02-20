@@ -12,7 +12,6 @@ import { ExpirationPlugin } from 'workbox-expiration';
 import { precacheAndRoute, createHandlerBoundToURL } from 'workbox-precaching';
 import { registerRoute } from 'workbox-routing';
 import { StaleWhileRevalidate, CacheFirst } from 'workbox-strategies';
-import { BackgroundSyncPlugin } from 'workbox-background-sync';
 import { Queue } from 'workbox-background-sync/Queue';
 import { openDB } from 'idb';
 
