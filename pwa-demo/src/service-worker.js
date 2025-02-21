@@ -11,7 +11,7 @@ import { clientsClaim } from 'workbox-core';
 import { ExpirationPlugin } from 'workbox-expiration';
 import { precacheAndRoute, createHandlerBoundToURL } from 'workbox-precaching';
 import { registerRoute } from 'workbox-routing';
-import { StaleWhileRevalidate, CacheFirst } from 'workbox-strategies';
+import { StaleWhileRevalidate, CacheFirst, CacheOnly } from 'workbox-strategies';
 import { Queue } from 'workbox-background-sync/Queue';
 import { openDB } from 'idb';
 
@@ -66,8 +66,8 @@ registerRoute(
 // Cache custom markers and other assets in the src/Assets directory
 registerRoute(
   ({ url }) => url.origin === self.location.origin && url.pathname.startsWith('/static/media/'),
-  new CacheFirst({
-    cacheName: `workbox-precache-v2-${self.location.origin}/`,
+  new CacheOnly({
+    cacheName: `workbox-precache-v2-https://geonotes.onrender.com/`,
     plugins: [
       new ExpirationPlugin({ maxEntries: 50 }),
     ],
