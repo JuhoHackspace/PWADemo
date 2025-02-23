@@ -91,6 +91,11 @@ registerRoute(
   })
 );*/
 
+registerRoute(
+  ({ url }) => url.pathname.startsWith('/static/media/marker'),
+  new CacheFirst()
+);
+
 // Open IndexedDB
 const dbPromise = openDB('responses-db', 1, {
   upgrade(db) {
