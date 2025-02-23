@@ -91,9 +91,12 @@ registerRoute(
   })
 );*/
 
+// Cache marker images using a Cache First strategy
 registerRoute(
   ({ url }) => url.pathname.startsWith('/static/media/marker'),
-  new CacheFirst()
+  new CacheFirst({
+    cacheName: 'marker-cache',
+  })
 );
 
 // Open IndexedDB
