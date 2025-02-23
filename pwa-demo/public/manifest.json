@@ -1,6 +1,6 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "GeoNotes",
+  "name": "GeoNotes - Map Your Locations",
   "icons": [
     {
       "src": "favicon.ico",
