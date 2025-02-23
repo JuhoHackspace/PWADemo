@@ -70,6 +70,7 @@ registerRoute(
     cacheName: `workbox-precache-v2-https://geonotes.onrender.com/`,
     plugins: [
       new ExpirationPlugin({ maxEntries: 50 }),
+      new LoggingPlugin(),
     ],
   })
 );
