@@ -48,6 +48,22 @@ registerRoute(
   createHandlerBoundToURL(process.env.PUBLIC_URL + '/index.html')
 );
 
+// Log cache updates and responses
+class LoggingPlugin {
+  async cacheDidUpdate({ cacheName, request, oldResponse, newResponse }) {
+    console.log(`Cached new response for ${request.url} in cache ${cacheName}`);
+  }
+
+  async cachedResponseWillBeUsed({ cacheName, request, cachedResponse }) {
+    if (cachedResponse) {
+      console.log(`Serving cached response for ${request.url} from cache ${cacheName}`);
+    } else {
+      console.log(`No cached response for ${request.url} in cache ${cacheName}`);
+    }
+    return cachedResponse;
+  }
+}
+
 // An example runtime caching route for requests that aren't handled by the
 // precache, in this case same-origin .png requests like those from in public/
 registerRoute(
@@ -138,22 +154,6 @@ self.addEventListener('fetch', async (event) => {
     }
   }
 });
-
-// Log cache updates and responses
-class LoggingPlugin {
-  async cacheDidUpdate({ cacheName, request, oldResponse, newResponse }) {
-    console.log(`Cached new response for ${request.url} in cache ${cacheName}`);
-  }
-
-  async cachedResponseWillBeUsed({ cacheName, request, cachedResponse }) {
-    if (cachedResponse) {
-      console.log(`Serving cached response for ${request.url} from cache ${cacheName}`);
-    } else {
-      console.log(`No cached response for ${request.url} in cache ${cacheName}`);
-    }
-    return cachedResponse;
-  }
-}
 
 // Custom handler function to switch between caching strategies
 const customHandler = async ({ event }) => {
