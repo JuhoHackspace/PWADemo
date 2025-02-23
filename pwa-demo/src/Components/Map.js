@@ -3,6 +3,7 @@ import { MapContainer, TileLayer, useMapEvents } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import LocationMarker from './LocationMarker';
 import UseLocations from '../Context/Locations/UseLocations';
+import useNotification from '../Context/Notification/UseNotification';
 
 export default function Map() {
   const [position, setPosition] = useState([65.0121, 25.4651]); // Default to Oulu, Finland
@@ -10,6 +11,7 @@ export default function Map() {
   const [markerPlacementEnabled, setMarkerPlacementEnabled] = useState(false);
   const { locations, addLocation, removeLocation } = UseLocations();
   const [markerRemovalEnabled, setMarkerRemovalEnabled] = useState(false);
+  const { addNotification } = useNotification();
 
   useEffect(() => {
     if(navigator.onLine) {
@@ -60,6 +62,9 @@ export default function Map() {
   }
 
   const handelRemoveButtonClick = () => {
+    if(!markerRemovalEnabled) {
+      addNotification("Click on a location to remove it.", "info");
+    }
     setMarkerRemovalEnabled(!markerRemovalEnabled);
     if(markerPlacementEnabled) {
       setMarkerPlacementEnabled(false);
@@ -67,6 +72,9 @@ export default function Map() {
   }
 
   const handleAddButtonClick = () => {
+    if(!markerPlacementEnabled) {
+      addNotification("Click on the map to add a location.", "info");
+    }
     setMarkerPlacementEnabled(!markerPlacementEnabled);
     if(markerRemovalEnabled) {
       setMarkerRemovalEnabled(false);
@@ -75,12 +83,8 @@ export default function Map() {
 
   return (
     <>
-    <span className="inner-1em text-center min-h-100">
-      <p>Add or remove locations</p>
-      <p>
-        {markerPlacementEnabled && "Click on the map to add a location."}
-        {markerRemovalEnabled && "Click on a location to remove it."}
-      </p>
+    <span className="inner-1em text-center txt-secondary">
+      <p>Add your favourite locations</p>
     </span>
     <div className="inner-1em row">
       <button 

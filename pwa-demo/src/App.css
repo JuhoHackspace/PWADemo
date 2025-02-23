@@ -71,6 +71,10 @@
   text-align: center;
 }
 
+.txt-secondary {
+  font-weight: bold;
+}
+
 .button {
   background-color: #333;
   color: white;
@@ -89,6 +93,14 @@
   background-color: #28a745;
 }
 
+.button:hover {
+  background-color: #555;
+}
+
+.button-secondary:hover {
+  background-color: #218838;
+}
+
 .notification-list {
   position: fixed;
   top: 50px;
@@ -101,6 +113,11 @@
   border-radius: 0 0 10px 0;
 }
 
+@media (max-width: 768px) {
+  .notification-list {
+    width: 50%;
+  }
+}
 .notification-list.slide-in {
   animation: slideIn 0.5s forwards;
 }
@@ -136,11 +153,11 @@
 }
 
 .info {
-  color: #17a2b8;
+  color: #fff;
 }
 
 .success {
-  color: #28a745;
+  color: #00c851;
 }
 
 .warning {
@@ -174,6 +191,17 @@
   top: 10px;
   right: 10px;
   z-index: 1000;
-  background-color: #ddd;
+  background-color: #ddd; /* Light grey background */
+  border: 1px solid #ccc; /* Slightly darker grey border */
   border-radius: 5px;
+  color: #333; /* Dark grey text color */
+  font-size: 0.85em; /* Font size */
+  cursor: pointer; /* Pointer cursor on hover */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+  transition: background-color 0.3s, color 0.3s; /* Smooth transition for hover effects */
+}
+
+#install-button:hover {
+  background-color: #ccc; /* Darker grey on hover */
+  color: #000; /* Darker text color on hover */
 }

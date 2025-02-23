@@ -79,18 +79,6 @@ registerRoute(
   })
 );
 
-// Cache custom markers and other assets in the src/Assets directory
-/*registerRoute(
-  ({ url }) => url.origin === self.location.origin && url.pathname.startsWith('/static/media/'),
-  new CacheOnly({
-    cacheName: `workbox-precache-v2-https://geonotes.onrender.com/`,
-    plugins: [
-      new ExpirationPlugin({ maxEntries: 50 }),
-      new LoggingPlugin(),
-    ],
-  })
-);*/
-
 // Cache marker images using a Cache First strategy
 registerRoute(
   ({ url }) => url.pathname.startsWith('/static/media/marker'),

@@ -62,8 +62,7 @@ const NotificationProvider = ({ children }) => {
   useEffect(() => {
     const handleQueuedInteractions = (event) => {
       if (event.data.size > 0) {
-        addNotification('Request queued. Will be sent once online.', 'info');
-        addNotification(`You have ${event.data.size} interactions queued.`, 'info');
+        addNotification(`${event.data.size} interaction${event.data.size > 1 ? 's' : ''} queued.`, 'info');
       }
     }
 

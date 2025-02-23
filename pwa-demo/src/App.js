@@ -6,6 +6,7 @@ import './App.css';
 
 function App() {
   const [installPromptEvent, setInstallPromptEvent] = useState(null);
+  const [showInstallButton, setShowInstallButton] = useState(true);
 
   useEffect(() => {
     // Capture the install prompt event
@@ -21,9 +22,28 @@ function App() {
       console.log('App installed!');
     });
   }, []);
+  
+  // Hide the install button in PWA mode
+  useEffect(() => {
+    const checkStandaloneMode = () => {
+      if (window.matchMedia('(display-mode: standalone)').matches) {
+        setShowInstallButton(false);
+      } else {
+        setShowInstallButton(true);
+      }
+    };
+    checkStandaloneMode();
+
+    window.matchMedia('(display-mode: standalone)').addEventListener('change', checkStandaloneMode);
+
+    return () => {
+      window.matchMedia('(display-mode: standalone)').removeEventListener('change', checkStandaloneMode);
+    };
+  }, []);
 
   // Handle the install button click
   const handleInstallClick = () => {
+
     if (installPromptEvent) {
       installPromptEvent.prompt(); // Show the install prompt
       installPromptEvent.userChoice.then((choice) => {
@@ -34,17 +54,22 @@ function App() {
         }
         setInstallPromptEvent(null); // Clear the prompt
       });
+    } else {
+      alert('The app is already installed.');
     }
   };
 
   return (
     <NotificationProvider>
       <LocationsProvider>
-        <button
-          onClick={handleInstallClick}
-          id="install-button"
-          className="inner-05em"
-        >Install App</button>
+        {showInstallButton && 
+          <button
+            onClick={handleInstallClick}
+            id="install-button"
+            className="inner-05em"
+          >Install App
+          </button>
+        }
         <MainScreen />
       </LocationsProvider>
     </NotificationProvider>
