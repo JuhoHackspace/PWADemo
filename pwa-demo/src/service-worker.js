@@ -153,7 +153,7 @@ self.addEventListener('fetch', async (event) => {
 
 // Custom handler function to switch between caching strategies
 const customHandler = async ({ event }) => {
-  const cacheFirst = new CacheFirst({
+  const cacheOnly = new CacheOnly({
     cacheName: 'map-tiles',
     plugins: [
       new ExpirationPlugin({ maxEntries: 1000 }),
@@ -174,13 +174,14 @@ const customHandler = async ({ event }) => {
     return await staleWhileRevalidate.handle(event);
   } else {
     console.log('Offline. Using cache-first strategy for ', event);
-    return await cacheFirst.handle(event);
+    return await cacheOnly.handle(event);
   }
 };
 
 // Register route to serve cached map tiles with custom handler
+// Register route to serve cached map tiles with custom handler
 registerRoute(
-  ({ url }) => url.origin === 'https://a.tile.openstreetmap.org',
+  ({ url }) => url.origin.match(/^https:\/\/[abc]\.tile\.openstreetmap\.org$/),
   customHandler
 );
 
