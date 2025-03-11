@@ -40,24 +40,29 @@ export default function Map() {
     return `${Number(latitude).toFixed(6)}_${Number(longitude).toFixed(6)}`;
   };
 
-  const hanleMapClick = (event) => {
+  const handleMapClick = (event) => {
     if(markerPlacementEnabled) {
       const { lat, lng } = event.latlng;
-      const location = {
-        id: hashLocation(lat, lng),
-        data: {
-          latitude: lat,
-          longitude: lng,
-          description: prompt("Enter a description for the location:")
-        }
-      };
-      addLocation(location);
+      const description = prompt("Enter a description for the location:");
+      if (description !== null) {
+        const location = {
+          id: hashLocation(lat, lng),
+          data: {
+            latitude: lat,
+            longitude: lng,
+            description: description
+          }
+        };
+        addLocation(location);
+      } else {
+        addNotification("Marker placement cancelled.", "info");
+      }
     }
   }
-  
+
   const MapClickHandler = () => {
     useMapEvents({
-      click: hanleMapClick
+      click: handleMapClick
     });
   }
 
