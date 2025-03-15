@@ -117,7 +117,34 @@
   .notification-list {
     width: 50%;
   }
+  .row {
+    display: flex;
+    flex-direction: column;
+    align-self: flex-end;
+  }
+  .button {
+    background-color: #fff;
+    color: #000;
+    text-align: right;
+    font-weight: bold;
+  }
+  .button-secondary {
+    background-color: #28a745;
+    color: white; /* Ensure text color is consistent */
+  }
 }
+
+/* Disable hover effects on mobile devices */
+@media (hover: none) {
+  .button:hover {
+    background-color: #fff; /* Reset to default background */
+  }
+
+  .button-secondary:hover {
+    background-color: #28a745; /* Reset to default background */
+  }
+}
+
 .notification-list.slide-in {
   animation: slideIn 0.5s forwards;
 }

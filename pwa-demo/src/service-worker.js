@@ -95,34 +95,62 @@ const dbPromise = openDB('responses-db', 1, {
 });
 
 // Implement Background Sync for fetch requests.
+let isSyncing = false;
 const queue = new Queue('fetch-requests', {
   onSync: async ({ queue }) => {
-    let entry;
-    while ((entry = await queue.shiftRequest())) {
-      try {
-        console.log('Replaying request:', entry.request);
-        const response = await fetch(entry.request.clone());
-        const responseText = await response.text();
-        let responseData;
-        try {
-          responseData = JSON.parse(responseText);
-        } catch (e) {
-          responseData = responseText;
-        }
-        console.log('Request replayed successfully:', responseData);
-      } catch (error) {
-        console.error('Replay failed for request:', entry.request, error);
-        await queue.unshiftRequest(entry);
-        throw error;
-      }
+    if (isSyncing) {
+      console.log('Sync already in progress. Aborting.');
+      return;
     }
-    // Notify clients that sync is complete
-    const clients = await self.clients.matchAll()
-    for (const client of clients) {
-      client.postMessage({ type: 'SYNC_COMPLETE' });
+    isSyncing = true;
+    console.log('Sync started...');
+    let entry;
+    try {
+      while ((entry = await queue.shiftRequest())) {
+        try {
+          console.log('Replaying request:', entry.request);
+          const response = await fetch(entry.request.clone());
+          const responseText = await response.text();
+          let responseData;
+          try {
+            responseData = JSON.parse(responseText);
+          } catch (e) {
+            responseData = responseText;
+          }
+          console.log('Request replayed successfully:', responseData);
+        } catch (error) {
+          console.error('Replay failed for request:', entry.request, error);
+          await queue.unshiftRequest(entry);
+          queue.registerSync() // Register sync event
+          notifySyncInterrupted(); // Notify clients about sync interruption
+          notifyQueueSize(); // Notify clients about the remaining queue size
+          throw error;
+        }
+      }
+      // Notify clients that sync is complete
+      notifySyncComplete();
+    } finally {
+      isSyncing = false;
+      console.log('Sync complete.');
     }
   },
 });
+
+// Notify clients about sync interruption
+const notifySyncInterrupted = async () => {
+  const clients = await self.clients.matchAll();
+  for (const client of clients) {
+    client.postMessage({ type: 'SYNC_INTERRUPTED' });
+  }
+};
+
+// Notify clients about sync completion
+const notifySyncComplete = async () => {
+  const clients = await self.clients.matchAll();
+  for (const client of clients) {
+    client.postMessage({ type: 'SYNC_COMPLETE' });
+  }
+};
 
 // Function to notify clients about the queue size
 const notifyQueueSize = async () => {

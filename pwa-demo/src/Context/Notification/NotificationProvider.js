@@ -78,6 +78,12 @@ const NotificationProvider = ({ children }) => {
         addNotification('Data synced successfully!', 'success');
       }
     })
+    navigator.serviceWorker.addEventListener('message', (event) => {
+      console.log('Received sync message from service worker', event.data);
+      if (event.data.type === 'SYNC_INTERRUPTED') {
+        addNotification('Sync interrupted. Resuming once online.', 'warning');
+      }
+    })
 
   }, []);
   return (

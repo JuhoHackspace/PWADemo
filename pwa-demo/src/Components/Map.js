@@ -88,7 +88,7 @@ export default function Map() {
 
   return (
     <>
-    <span className="inner-1em text-center txt-secondary">
+    <span className="inner-05em text-center txt-secondary">
       <p>Add your favourite locations</p>
     </span>
     <div className="inner-1em row">
@@ -96,13 +96,13 @@ export default function Map() {
         className={`button ${markerPlacementEnabled ? "button-secondary" : ""}`} 
         onClick={handleAddButtonClick}
       >
-        Add Location
+        Add Location +
       </button>
       <button 
         className={`button ${markerRemovalEnabled ? "button-secondary" : ""}`} 
         onClick={handelRemoveButtonClick}
       >
-        Remove Location
+        Remove Location -
       </button>
     </div>
     <MapContainer center={position} zoom={zoom} style={{ height: "400px", width: "100%" }}>
@@ -111,7 +111,12 @@ export default function Map() {
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         />
         <MapClickHandler />
-        <LocationMarker position={position} description="You are here." isUserLocation={true} />
+        <LocationMarker 
+            position={position} 
+            description="You are here." 
+            isUserLocation={true} 
+            onClickHandler={() => {}}
+        />
         {locations.length > 0 && locations.map((location, index) => (
           <LocationMarker 
             key={index} 
