@@ -4,6 +4,7 @@ import 'leaflet/dist/leaflet.css';
 import LocationMarker from './LocationMarker';
 import UseLocations from '../Context/Locations/UseLocations';
 import useNotification from '../Context/Notification/UseNotification';
+import CircularProgress from '@mui/material/CircularProgress';
 
 export default function Map() {
   const [position, setPosition] = useState([65.0121, 25.4651]); // Default to Oulu, Finland
@@ -12,19 +13,29 @@ export default function Map() {
   const { locations, addLocation, removeLocation } = UseLocations();
   const [markerRemovalEnabled, setMarkerRemovalEnabled] = useState(false);
   const { addNotification } = useNotification();
+  const [locationLoading, setLocationLoading] = useState(true);
 
   useEffect(() => {
     if(navigator.onLine) {
       // Get the user's current location
-      navigator.geolocation.getCurrentPosition((position) => {
+      setLocationLoading(true);
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
         const userPosition = [position.coords.latitude, position.coords.longitude];
         setPosition(userPosition); // Set the user's position
+        setLocationLoading(false);
         setZoom(15); // Zoom in to the user's location
         console.log("User position: ", position.coords);
 
         localStorage.setItem('userPosition', JSON.stringify(userPosition));
 
-      });
+        },
+        (error) => {
+          console.error('Error getting location:', error);
+          setLocationLoading(false); // Stop loading even if there's an error
+          addNotification('Unable to fetch location. Please enable location services.', 'error');
+        }
+    );
     } else {
       const userPosition = JSON.parse(localStorage.getItem('userPosition'));
       if(userPosition) {
@@ -32,6 +43,7 @@ export default function Map() {
         setPosition(userPosition);
         setZoom(15);
       }
+      setLocationLoading(false);
     }
   }, []);
 
@@ -91,6 +103,12 @@ export default function Map() {
     <span className="inner-05em text-center txt-secondary">
       <p>Add your favourite locations</p>
     </span>
+    {locationLoading && (
+      <div className="col center-all" style={{ height: '100px'}}>
+            <CircularProgress /> {/* Show spinner while loading */}
+            <p>Finding your location...</p>
+      </div>
+    )}
     <div className="inner-1em row">
       <button 
         className={`button ${markerPlacementEnabled ? "button-secondary" : ""}`} 
